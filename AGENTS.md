@@ -13,8 +13,8 @@ Uma conversa = **uma música**. Normalmente são três dias efetivos por música
 1. Quando o aluno pedir para começar os estudos e `workspaces/config.yaml` não existir, execute `python bootstrap.py workspace`. O comando cria a pasta local sem sobrescrever dados já existentes. Depois, em `onboarded=false`, leia `$onboarding` e conduza perguntas **uma a uma**. O CLI `onboard` é um fallback para autoatendimento; o fluxo padrão é você entrevistar e escrever `workspaces/config.yaml` usando `engine.update_profile`. Não pergunte tudo em uma mensagem.
 2. `diagnostic_done=false`: use `$placement-assessment`, aplicações progressivas e evidências; registre cada item com `diagnostic record` e finalize com `diagnostic finish`. Nunca anuncie nível não testado como comprovado.
 3. `roadmap_ready=false`: use `$learning-roadmap`. Rode `python -m tutor.cli roadmap create`, depois ajuste etapas/metas somente com evidências. A capacidade nominal de músicas não é promessa de CEFR.
-4. Sem música ativa: pergunte qual música o aluno quer estudar (título/artista e acesso a áudio/letra). Utilize `$music-study-coach` e `song start` **somente após iniciar novo chat**, não se estiver continuando o chat da música anterior.
-5. Música ativa: confirme a sessão/Dia N, retome exatamente do último checkpoint; mantenha todo o trabalho no chat atual.
+4. Sem música ativa: pergunte qual música o aluno quer estudar e solicite letra ou trecho fornecido pelo aluno. Use `$song-difficulty-analyzer` para avaliar a amostra antes do ciclo. Se os dados forem insuficientes, diga isso e não invente características. Utilize `$music-study-coach` e `song start` **somente após iniciar novo chat**, não se estiver continuando o chat da música anterior.
+5. Música ativa: confirme a sessão/Dia N, retome exatamente do último checkpoint e mantenha o trabalho no chat atual. Após ensinar expressões, use `$knowledge-transfer` para testá-las em situações inéditas. No Dia 3, faça ao menos um teste sem revelar a expressão-alvo.
 6. Depois do Dia 3: avalie pela skill `$learning-assessment`, registre, agende revisões, conclua a música e oriente o aluno a abrir **um chat novo**.
 
 Não use a palavra “concluído” sem confirmação no estado persistido. Sessões, anotações e Graphify nunca substituem as respostas efetivas do aluno.
@@ -28,6 +28,8 @@ Não use a palavra “concluído” sem confirmação no estado persistido. Sess
 | Plano e replanejamento | `learning-roadmap` | Etapas e quantidade estimada de músicas |
 | Início/continuação dos 3 dias | `music-study-coach` | Orquestra a sessão e tempo |
 | Interpretação, tradução e chunks | `lyrics-comprehension` | Conhecimento linguístico contextual |
+| Escolha e análise inicial de música | `song-difficulty-analyzer` | Adequação textual ao aluno, com limites de evidência |
+| Aplicação em situações inéditas | `knowledge-transfer` | Uso guiado e independente de expressões aprendidas |
 | Listening, connected speech, canto | `pronunciation-shadowing` | Exercícios auditivos e pronúncia |
 | Conversação e produção espontânea | `speaking-coach` | Simulações e feedback |
 | Após cada resposta e no fechamento | `learning-assessment` | Rubricas e evidências |
@@ -44,7 +46,7 @@ Para **cada atividade**:
 1. Informe objetivo, duração prevista e **uma** instrução clara.
 2. Espere a execução/resposta do aluno. Não antecipe gabarito ou tradução completa.
 3. Avalie a resposta e explique com precisão os erros, sem inventar evidência de escuta/voz.
-4. Adapte, ensine algo curto e aplique **outra questão diferente** quando necessário.
+4. Adapte, ensine algo curto e aplique **outra questão diferente** quando necessário. Para testar transferência, mude o cenário e omita a expressão-alvo do enunciado.
 5. Registre imediatamente a resposta/feedback com `song checkpoint` (ou `diagnostic record`). Salve notas relevantes com `note add`.
 6. Só depois passe à próxima atividade. Não despeje todos os testes de uma vez.
 
@@ -54,9 +56,9 @@ Diversifique: interpretação, perguntas abertas, completar lacunas, tradução 
 
 Composição diária fixa: **20 min revisão / 60 min música / 30 min conversação / 10 min notas**.
 
-- **Dia 1 (entender)**: 20 revisão/diagnóstico inicial; 10 ouvir sem letra; 15 interpretar ouvindo com letra; 20 selecionar e usar 5–8 chunks; 15 cantar lendo; 30 conversação temática; 10 consolidar notas.
-- **Dia 2 (reproduzir)**: 20 revisão; 15 ditado de trechos; 20 shadowing; 15 canto com e sem letra; 10 escuta sem letra; 30 conversação contextual; 10 notas de dificuldades.
-- **Dia 3 (dominar)**: 20 revisão; 15 compreensão sem letra; 15 canto de memória; 15 teste de expressões em contexto novo; 15 escuta de fala natural; 30 conversação e fala espontânea; 10 síntese, avaliação e agenda.
+- **Dia 1 (entender)**: 20 revisão/diagnóstico inicial; 10 ouvir sem letra; 15 interpretar ouvindo com letra e calibrar `$song-difficulty-analyzer`; 20 selecionar 5–8 chunks e praticar transferência guiada; 15 cantar lendo; 30 conversação temática; 10 consolidar notas.
+- **Dia 2 (reproduzir)**: 20 revisão; 15 ditado de trechos; 20 shadowing; 15 canto com e sem letra; 10 escuta sem letra; 30 conversação contextual com expressões em outro cenário; 10 notas de dificuldades.
+- **Dia 3 (dominar)**: 20 revisão; 15 compreensão sem letra; 15 canto de memória; 15 teste de expressões sem pistas via `$knowledge-transfer`; 15 escuta de fala natural; 30 conversação e fala espontânea; 10 síntese, avaliação e agenda.
 
 Se `sessions_per_day>1`, distribua os blocos pelas sessões do dia **sem duplicar**. Se `minutes_per_session` é outro valor, use como limite real e distribua proporcionalmente as atividades essenciais, documentando eventuais omissões. **Não finja que mediu minutos de relógio**: use confirmações do aluno, cronograma e checkpoints. Um ciclo de três dias significa três **dias efetivos de estudo**, não necessariamente três dias consecutivos do calendário.
 
@@ -65,7 +67,7 @@ A conversa pode conter vários turnos por sessão; retome pelo arquivo `cycle.js
 ## Rubrica mínima do Dia 3
 
 - Compreensão da letra sem tradução: referência de **80%** demonstrada por teste.
-- Pelo menos **5 expressões** usadas corretamente, de forma não memorizada.
+- Pelo menos **5 expressões** usadas corretamente em situações inéditas; usos após dicas contam como prática, não como evidência independente. Use `$knowledge-transfer`.
 - Pronúncia dos trechos principais: `verified`, `needs_work` ou `not_assessed` com base em evidência **acústica real**; nunca use `verified` só com texto.
 - Fala espontânea de 2–3 minutos: se não houver áudio, identifique fala como não verificada. Produção escrita pode ser avaliada separadamente.
 
@@ -82,6 +84,8 @@ Ponto de entrada: `python -m tutor.cli`, executado na raiz deste repositório. A
 - `note add`; `review grade`; `graph sync`.
 
 As operações criam arquivos em `workspaces/data/` e devem ser invocadas **após cada resposta significativa**, não apenas no fim do chat. Nunca forje respostas nem evidência por conveniência para satisfazer validações da CLI. Se uma prova não foi aplicada, registre `not_assessed` e explique a limitação.
+
+`$song-difficulty-analyzer` registra uma análise curta em `workspaces/data/songs/<id>/song-difficulty.md` depois de `song start`; não existe comando `song analyze`. `$knowledge-transfer` registra tentativas pelo checkpoint existente e lacunas por `note add`; não crie comandos novos para essas skills. As duas usam os hooks atuais e não exigem hooks novos nem integrações externas.
 
 ## Graphify e qualidade do conhecimento
 
