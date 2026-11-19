@@ -6,7 +6,7 @@
 
 O projeto transforma Codex em um **tutor interativo de inglês orientado por músicas**, com objetivo e prazo configuráveis (inclusive estudo contínuo), nivelamento inicial, roadmap dinâmico, sessões guiadas, exercícios, correções, retestes, anotações automáticas, revisões espaçadas e navegação opcional por grafo de conhecimento via Graphify.
 
-**Não se limita a B1→B2 nem a 90 dias.** O aluno decide onde quer chegar, em quanto tempo, quantas vezes por semana estudará, quantas sessões fará por dia e quanto tempo terá por sessão. O agente estima o número de músicas a partir da capacidade disponível, explica o nível de confiança dessa previsão e replaneja diante do desempenho.
+O aluno decide onde quer chegar, em quanto tempo, quantas vezes por semana estudará, quantas sessões fará por dia e quanto tempo terá por sessão. O agente estima o número de músicas a partir da capacidade disponível, explica o nível de confiança dessa previsão e replaneja diante do desempenho.
 
 ## Experiência do aluno
 
