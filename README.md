@@ -1,6 +1,6 @@
 # English Music Tutor
 
-Um tutor de inglês com música, conduzido pelo Codex. Ele faz o nivelamento, monta um plano de estudo e registra o progresso para continuar de onde você parou.
+Um tutor de inglês com música, conduzido pelo Codex. Ele faz o nivelamento, monta um plano de estudo conforme seu objetivo e registra o progresso para continuar de onde você parou.
 
 ## Começar
 
