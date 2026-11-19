@@ -1,0 +1,32 @@
+{
+  "description": "Tutor local: carrega estado no início da conversa e registra encerramento consultivo",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|compact|fork|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -m tutor.hooks start",
+            "commandWindows": "py -3 -m tutor.hooks start",
+            "timeout": 8,
+            "additionalContextLimit": 1800,
+            "statusMessage": "Recuperando o progresso do aluno"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -m tutor.hooks end",
+            "commandWindows": "py -3 -m tutor.hooks end",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
+  }
+}

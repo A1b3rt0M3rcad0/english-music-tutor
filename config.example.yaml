@@ -1,0 +1,33 @@
+schema_version: 1
+student:
+  name: null
+  native_language: pt-BR
+  target_language: en
+  learning_goal: null
+  target_cefr: null
+schedule:
+  mode: null                 # fixed | continuous
+  duration_days: null       # obrigatório se mode=fixed
+  days_per_week: null       # 1..7
+  sessions_per_day: null    # 1..6
+  minutes_per_session: null # 15..240
+method:
+  default_study_days_per_song: 3
+  expressions_per_song:
+    min: 5
+    max: 8
+  review_intervals_days: [1, 3, 7, 14, 30]
+  adapt_to_performance: true
+  automatic_notes: true
+  interactive_testing: true
+  voice_mode: external      # external | audio_available | text_only
+assessment:
+  placement_status: pending
+  diagnostic_date: null
+roadmap:
+  status: pending_diagnostic
+  planning_horizon_days: 90
+knowledge:
+  graphify_enabled: true
+  graphify_source: data/notes
+  graphify_output: graphify-out
