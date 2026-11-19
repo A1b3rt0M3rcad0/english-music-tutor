@@ -1,6 +1,6 @@
 # Comandos operacionais para Codex e usuários avançados
 
-Execute na **raiz do workspace de estudo**, com Python e PyYAML instalados.
+Execute na **raiz do repositório**, com a venv ativada. A CLI usa `workspaces/` automaticamente.
 
 ```bash
 python -m tutor.cli doctor
@@ -62,23 +62,24 @@ python -m tutor.cli review grade --note-id expressions/figure-out --result corre
 
 ```bash
 graphify --help
-# Instale o Graphify como skill no workspace; leia INSTALL.md.
+# Instale o Graphify como skill no projeto; leia INSTALL.md.
 python -m tutor.cli graph sync
 # Consulte as opções de query da versão instalada:
 graphify query --help
 ```
 
-A sincronização executa `graphify <data/notes>` com o backend já configurado. Ela é opcional, pode fazer chamadas remotas e não será invocada silenciosamente por hooks.
+A sincronização executa Graphify sobre `workspaces/data/notes/` com o backend já configurado. Ela é opcional, pode fazer chamadas remotas e não será invocada silenciosamente por hooks.
 
 ## Arquivos gerados
 
-- `config.yaml`: preferências, fonte de verdade.
-- `data/state.json`: progresso do fluxo (não editar manualmente, salvo recuperação consciente).
-- `data/assessments/placement/items.json`: tentativas e respostas reais.
-- `data/assessments/placement/report.yaml`: estimativa por competência com limitações.
-- `data/roadmap.yaml`: plano nominal (editável pelo Codex, sem remover histórico).
-- `data/songs/<id>/cycle.json`: dias, evidências, status e vínculo com chat.
-- `data/notes/**/*.md`: conhecimento permanente; `data/notes/index.json`: índice.
-- `data/reviews.json`: revisões vencidas e histórico de tentativas.
-- `data/events.jsonl`: registro cronológico técnico.
-- `.tutor/session.json`: identificador efêmero do chat corrente (ignorado pelo Git).
+- `workspaces/config.yaml`: preferências, fonte de verdade.
+- `workspaces/data/state.json`: progresso do fluxo (não editar manualmente, salvo recuperação consciente).
+- `workspaces/data/assessments/placement/items.json`: tentativas e respostas reais.
+- `workspaces/data/assessments/placement/report.yaml`: estimativa por competência com limitações.
+- `workspaces/data/roadmap.yaml`: plano nominal (editável pelo Codex, sem remover histórico).
+- `workspaces/data/songs/<id>/cycle.json`: dias, evidências, status e vínculo com chat.
+- `workspaces/data/notes/**/*.md`: conhecimento permanente; `workspaces/data/notes/index.json`: índice.
+- `workspaces/data/reviews.json`: revisões vencidas e histórico de tentativas.
+- `workspaces/data/events.jsonl`: registro cronológico técnico.
+- `workspaces/data/threads.json`: vínculo entre músicas e chats.
+- `workspaces/.tutor/session.json`: identificador efêmero do chat corrente (ignorado pelo Git).

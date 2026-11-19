@@ -10,7 +10,17 @@ from typing import Any
 
 
 def root() -> Path:
-    return Path(os.environ.get("TUTOR_WORKSPACE", Path.cwd())).resolve()
+    configured = os.environ.get("TUTOR_WORKSPACE")
+    if configured:
+        return Path(configured).resolve()
+
+    current = Path.cwd().resolve()
+    if (current / "config.yaml").is_file():
+        return current
+    embedded = current / "workspaces"
+    if (embedded / "config.yaml").is_file():
+        return embedded
+    return current
 
 
 def now() -> str:
@@ -91,4 +101,6 @@ def event(base: Path, kind: str, fields: dict) -> None:
 
 def require_workspace(base: Path) -> None:
     if not (base / "config.yaml").exists():
-        raise ValueError(f"Não há config.yaml em {base}. Crie um workspace com bootstrap.py.")
+        raise ValueError(
+            f"Não há config.yaml em {base}. Execute python bootstrap.py workspace na raiz do projeto."
+        )

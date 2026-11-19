@@ -20,5 +20,6 @@ data/audio/
 
 # Sessões locais e credenciais
 .tutor/
+/workspaces/
 .DS_Store
 Thumbs.db

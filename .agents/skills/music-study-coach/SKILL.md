@@ -8,7 +8,7 @@ description: Conduzir cada música em um chat exclusivo com três dias e sessõe
 **Quando usar:** o aluno informa música ou deseja continuar Dia 2/Dia 3 do chat atual.
 
 ## Antes da primeira atividade
-- Leia estado, configurações, roadmap, `review due` e sessões anteriores. Faça somente a revisão correspondente à sessão.
+- Leia `workspaces/config.yaml`, estado e roadmap, rode `review due` e consulte sessões anteriores. Faça somente a revisão correspondente à sessão.
 - Confirme nome/artista e se existe áudio e letra acessíveis. O aluno pode colar letra durante a conversa, mas não salve sua íntegra no repositório, especialmente letras protegidas.
 - Novo chat + nova música: `song start --title ... --artist ... --source ...`; continuação: `song current`. A música é vinculada ao ID de chat por hook se disponível.
 - Em cada dia: `song begin-day --day N` → atividades sequenciais → `song checkpoint` em cada resposta relevante → `song end-day --day N` com resumo fiel.

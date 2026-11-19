@@ -61,16 +61,17 @@ def onboard(base: Path) -> None:
 def doctor(base: Path) -> dict:
     issues = []
     if not (base / 'config.yaml').exists():
-        issues.append('Não existe config.yaml')
+        issues.append('Não existe config.yaml. Execute python bootstrap.py workspace na raiz do projeto.')
     else:
         try:
             cfg = e.checked_config(base)
             issues += e.validate_schedule(cfg, complete=state(base).get('onboarded', False))
         except Exception as exc:
             issues.append(str(exc))
+    project = Path(__file__).resolve().parent.parent
     for p in ('AGENTS.md', '.agents/skills/music-study-coach/SKILL.md',
               '.codex/hooks.json', 'tutor/hooks.py'):
-        if not (base / p).is_file():
+        if not (project / p).is_file():
             issues.append(f'Arquivo ausente: {p}')
     try:
         import yaml

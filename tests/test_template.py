@@ -7,13 +7,16 @@ import pytest
 
 from bootstrap import ROOT, create_workspace
 from tutor import engine
+from tutor.cli import doctor
 from tutor.store import read_json, write_json
+from tutor.store import root as workspace_root
 from tutor.hooks import hook_start
 
 
 def workspace(tmp_path: Path) -> Path:
-    folder = create_workspace(tmp_path / 'study')
-    return folder
+    project = tmp_path / 'study'
+    project.mkdir()
+    return create_workspace(project)
 
 
 def configured(base: Path):
@@ -38,19 +41,78 @@ def test_public_template_has_no_student_config_or_data():
     assert (ROOT/'config.example.yaml').is_file()
     assert not (ROOT/'config.yaml').exists()
     assert not (ROOT/'data').exists()
+    assert '/workspaces/' in (ROOT/'.gitignore').read_text(encoding='utf-8')
     assert len(list((ROOT/'.agents/skills').glob('*/SKILL.md'))) >= 12
     assert (ROOT/'.codex/hooks.json').is_file()
 
 
-def test_bootstrap_is_separate_and_non_destructive(tmp_path):
-    base = workspace(tmp_path)
+def test_bootstrap_creates_one_internal_workspace_and_preserves_it(tmp_path):
+    project = tmp_path / 'study'
+    project.mkdir()
+    base = create_workspace(project)
+    assert base == project / 'workspaces'
     assert (base/'config.yaml').exists()
     assert not (base/'data/state.json').exists()
-    assert (base/'AGENTS.md').exists()
-    with pytest.raises(FileExistsError):
-        create_workspace(base)
-    with pytest.raises(ValueError):
-        create_workspace(ROOT / 'my-study')
+    assert not (base/'tutor').exists()
+    assert not (base/'.agents').exists()
+    assert (base/'.gitignore').is_file()
+    private_note = base / 'data' / 'private.txt'
+    private_note.write_text('progresso local', encoding='utf-8')
+    assert create_workspace(project) == base
+    assert private_note.read_text(encoding='utf-8') == 'progresso local'
+
+
+def test_bootstrap_refuses_to_overwrite_partial_workspace(tmp_path):
+    project = tmp_path / 'study'
+    partial = project / 'workspaces'
+    partial.mkdir(parents=True)
+    (partial / 'student-file.txt').write_text('keep', encoding='utf-8')
+    with pytest.raises(FileExistsError, match='Revise-os'):
+        create_workspace(project)
+
+
+def test_bootstrap_rejects_workspace_symlink(tmp_path):
+    project = tmp_path / 'study'
+    project.mkdir()
+    outside = tmp_path / 'outside'
+    outside.mkdir()
+    (project / 'workspaces').symlink_to(outside, target_is_directory=True)
+    with pytest.raises(ValueError, match='link simbólico'):
+        create_workspace(project)
+    assert not (outside / 'config.yaml').exists()
+
+
+def test_bootstrap_keeps_current_codex_session_in_workspace(tmp_path):
+    project = tmp_path / 'study'
+    session = project / '.tutor' / 'session.json'
+    session.parent.mkdir(parents=True)
+    session.write_text('{"session_id":"current-chat"}\n', encoding='utf-8')
+    base = create_workspace(project)
+    assert read_json(base / '.tutor' / 'session.json') == {'session_id': 'current-chat'}
+
+
+def test_root_detects_workspace_inside_project(tmp_path, monkeypatch):
+    project = tmp_path / 'project'
+    base = project / 'workspaces'
+    base.mkdir(parents=True)
+    (base / 'config.yaml').write_text('schema_version: 1\n', encoding='utf-8')
+    monkeypatch.delenv('TUTOR_WORKSPACE', raising=False)
+    monkeypatch.chdir(project)
+    assert workspace_root() == base
+    monkeypatch.chdir(base)
+    assert workspace_root() == base
+
+
+def test_doctor_checks_shared_project_files_from_workspace(tmp_path):
+    base = workspace(tmp_path)
+    result = doctor(base)
+    assert not any(issue.startswith('Arquivo ausente:') for issue in result['issues'])
+
+
+def test_start_hook_explains_how_to_initialize_workspace(tmp_path):
+    output = hook_start(tmp_path, {})
+    context = output['hookSpecificOutput']['additionalContext']
+    assert 'python bootstrap.py workspace' in context
 
 
 def test_config_and_leveling_requires_evidence(tmp_path):

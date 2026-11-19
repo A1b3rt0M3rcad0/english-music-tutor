@@ -14,7 +14,7 @@ description: Conduzir instalação pedagógica e mudanças de objetivo, prazo e 
 4. Pergunte se possui áudio, acesso a letras, microfone e conversação por voz. Diferencie `external` (faz fora do Codex), `audio_available` (há áudio realmente acessível) e `text_only`.
 5. Pergunte qual foi a experiência anterior do aluno. Isso contextualiza, mas não substitui diagnóstico.
 6. Resuma a configuração e peça validação **uma única vez** antes da persistência inicial.
-7. Registre em `config.yaml` através de `engine.update_profile` (Python). Alternativa: `python -m tutor.cli onboard` no terminal, com usuário preenchendo.
+7. Registre em `workspaces/config.yaml` através de `engine.update_profile` (Python). A CLI é executada na raiz do projeto e encontra `workspaces/` automaticamente. Alternativa: `python -m tutor.cli onboard` no terminal, com usuário preenchendo.
 8. Execute `python -m tutor.cli doctor` e prossiga para `$placement-assessment`.
 
 **Campos YAML obrigatórios:** `student.learning_goal`, `schedule.mode`, `schedule.duration_days` (se fixo), `days_per_week`, `sessions_per_day`, `minutes_per_session`, `method.voice_mode`. O projeto começa sem valores pessoais.

@@ -10,7 +10,7 @@ description: Gerenciar anotações de todo o estudo, extraindo conhecimento veri
 - Registro factual: respostas do aluno (ou descrição fiel), erros verificados, correções e contextos de uso.
 - Cada nova expressão → `python -m tutor.cli note add --type expression --title ... --meaning ... --example ... --evidence ... --tags ...`.
 - Conceito gramatical → `--type grammar`; observação fonética → `--type pronunciation` (não confundir com medição de áudio); lacuna persistente → `--type difficulty`.
-- O CLI cria ou atualiza Markdown em `data/notes/`, adiciona vínculo à música e mantém `index.json`.
+- O CLI cria ou atualiza Markdown em `workspaces/data/notes/`, adiciona vínculo à música e mantém `index.json`.
 - Toda questão do dia recebe `song checkpoint`; as notas são uma síntese reutilizável, não substituem registros de tentativa.
 - Ao concluir uma sessão, inspecione anotações para coerência, atualize resumo e informe ao aluno **o que foi guardado** em duas frases, sem exigir cópia manual.
 - Não grave a letra integral no repositório; preserve somente referências e material original do aluno.

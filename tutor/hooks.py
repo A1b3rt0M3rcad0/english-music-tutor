@@ -14,9 +14,11 @@ def hook_start(base: Path, payload: dict) -> dict:
     if session_id:
         write_json(directory / 'session.json', {'session_id': session_id, 'at': now()})
     state = read_json(base / 'data/state.json', {})
-    msg = ['Tutor de inglês. Antes da resposta leia AGENTS.md e config.yaml.']
-    if not state.get('onboarded'):
-        msg.append('Aluno não configurado: conduza onboarding, uma pergunta por vez; registre em config.yaml.')
+    msg = ['Tutor de inglês. Leia AGENTS.md e workspaces/config.yaml antes de continuar.']
+    if not (base / 'config.yaml').is_file():
+        msg.append('Workspace ainda não iniciado. Quando o aluno quiser começar, execute python bootstrap.py workspace na raiz do projeto.')
+    elif not state.get('onboarded'):
+        msg.append('Aluno não configurado: conduza onboarding, uma pergunta por vez; registre em workspaces/config.yaml.')
     elif not state.get('diagnostic_done'):
         msg.append('Onboarding pronto. Faça diagnóstico progressivo antes de montar roadmap.')
     elif not state.get('roadmap_ready'):
@@ -55,11 +57,9 @@ def main() -> int:
     except (ValueError, EOFError):
         payload = {}
     base = root()
-    if not (base / 'config.yaml').is_file():
-        return 0
     if sys.argv[1] == 'start':
         print(json.dumps(hook_start(base, payload), ensure_ascii=False))
-    else:
+    elif (base / 'config.yaml').is_file():
         hook_end(base)
     return 0
 
