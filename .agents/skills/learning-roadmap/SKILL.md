@@ -20,3 +20,6 @@ description: Gerar e recalcular roadmap personalizado a partir de diagnóstico e
 - Três dias de estudo por música é o padrão, não três dias corridos. Não avance só porque o calendário passou.
 - O objetivo pode ser livre (não apenas CEFR), e o programa pode durar a vida toda.
 - Jamais force uma meta B1→B2 ou 90 dias para todos.
+
+
+No v2 roadmap create --reason ... inclui snapshot de níveis, lacunas e ritmo. Consulte analytics summary, cefr current e knowledge gaps; não extrapole CEFR linearmente.

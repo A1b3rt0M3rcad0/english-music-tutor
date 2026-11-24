@@ -15,3 +15,6 @@ description: Adaptar intensidade, questões e roadmap com base em falhas e acert
 6. Replanejar fases via `$learning-roadmap` se resultados cumulativos indicarem atraso ou aceleração, preservando histórico.
 
 **Regras:** respeitar o orçamento de sessão, nunca fabricar progresso, não fixar nível B1 nem prazo de 90 dias, não desviar do tema principal de um chat para uma segunda música.
+
+
+No v2 consulte analytics summary, analytics difficulties, knowledge gaps e cefr current; compare por dificuldade e amostra. Replaneje com roadmap create --reason ... .

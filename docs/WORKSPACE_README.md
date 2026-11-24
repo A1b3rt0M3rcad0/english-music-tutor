@@ -5,3 +5,6 @@ Esta pasta guarda sua configuração, anotações e histórico. O tutor e as ski
 O Git ignora `workspaces/` por padrão para proteger seus dados no clone público. Para manter uma cópia no GitHub, siga a seção “Seu progresso” do README da raiz e use um repositório particular.
 
 O arquivo `.gitignore` desta pasta exclui credenciais, arquivos de áudio, o diretório `data/lyrics/` e saídas temporárias.
+
+
+Schema v2 guarda knowledge/, assessments/cefr/ e study_sessions/ em data/. .tutor/ abriga backups locais; não publique essa pasta.

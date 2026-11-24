@@ -18,8 +18,8 @@ SKILLS = ('grammar', 'vocabulary', 'reading', 'listening', 'writing', 'speaking'
 def checked_config(base: Path) -> dict:
     require_workspace(base)
     cfg = read_yaml(base / 'config.yaml')
-    if cfg.get('schema_version') != 1:
-        raise ValueError('config.yaml: schema_version deve ser 1')
+    if cfg.get('schema_version') not in (1, 2):
+        raise ValueError('config.yaml: schema_version deve ser 1 ou 2')
     return cfg
 
 
@@ -91,6 +91,8 @@ def finish_diagnostic(base: Path, levels: dict, summary: str) -> dict:
     s = state(base)
     if not s.get('onboarded'):
         raise ValueError('Faça onboarding primeiro')
+    if checked_config(base)['schema_version'] == 2 and s.get('diagnostic_done'):
+        raise ValueError('Diagnóstico inicial preservado; use cefr begin para reavaliar')
     items = read_json(base / 'data/assessments/placement/items.json', [])
     if len(items) < 10:
         raise ValueError(f'Diagnóstico incompleto: {len(items)} respostas; mínimo 10')
@@ -126,10 +128,13 @@ def finish_diagnostic(base: Path, levels: dict, summary: str) -> dict:
     s['diagnostic_done'] = True
     save_state(base, s)
     event(base, 'diagnostic_finished', {'levels': levels})
+    if cfg['schema_version'] == 2:
+        from . import cefr
+        cefr.preserve_placement(base)
     return report
 
 
-def create_roadmap(base: Path) -> dict:
+def create_roadmap(base: Path, reason: str = '') -> dict:
     cfg = checked_config(base)
     if not state(base)['diagnostic_done']:
         raise ValueError('Finalize o diagnóstico antes do roadmap')
@@ -160,6 +165,26 @@ def create_roadmap(base: Path) -> dict:
              'criteria': 'Teste independente + justificativa por competência'}
         ], 'history': history
     }
+    if cfg['schema_version'] == 2:
+        from . import analytics, mastery
+        report = analytics.summary(base)
+        current = report['cefr_current']['levels']
+        target = cfg['student'].get('target_cefr')
+        below = [k for k, v in current.items() if target in LEVELS[:-1] and
+                 v['level'] in LEVELS[:-1] and LEVELS.index(v['level']) < LEVELS.index(target)]
+        result['adaptation'] = {'reason': reason or 'Atualização do plano',
+                                'current_levels': current, 'below_target': below,
+                                'not_assessed': [k for k,v in current.items() if v['level'] == 'not_assessed'],
+                                'knowledge_gap_ids': [x['id'] for x in mastery.gaps(base)],
+                                'study': report['study'], 'difficulties': report['difficulties'],
+                                'transfer': report['transfer'], 'retention': report['retention'],
+                                'songs_completed': report['songs_completed']}
+        actual = report['study']['effective_minutes']
+        sessions = report['study']['sessions_confirmed']
+        if sessions and actual is not None:
+            result['adaptation']['observed_minutes_per_session'] = round(actual/sessions, 1)
+            result['adaptation']['observed_pace_hours_per_song'] = (round(actual/60/report['songs_completed'], 2)
+                                                                  if report['songs_completed'] else None)
     write_yaml(base / 'data/roadmap.yaml', result)
     cfg['roadmap']['status'] = 'active'
     write_yaml(base / 'config.yaml', cfg)
@@ -237,7 +262,8 @@ def begin_day(base: Path, day: int) -> dict:
 
 
 def checkpoint(base: Path, day: int, activity: str, evidence: str,
-               feedback: str, score: float | None) -> dict:
+               feedback: str, score: float | None, *, skill: str | None = None,
+               difficulty: str | None = None, error_tag: str | None = None) -> dict:
     record, path = active_song(base)
     check_thread(base, record)
     if record['day'] != day or record['days'][str(day)]['status'] != 'in_progress':
@@ -246,8 +272,13 @@ def checkpoint(base: Path, day: int, activity: str, evidence: str,
         raise ValueError('Atividade, evidência e feedback são obrigatórios; não invente respostas')
     if score is not None and not 0 <= score <= 1:
         raise ValueError('score de 0 a 1')
+    if skill is not None and skill not in SKILLS:
+        raise ValueError('Competência inválida')
+    if difficulty is not None and difficulty not in LEVELS[:-1]:
+        raise ValueError('Dificuldade inválida')
     entry = {'at': now(), 'activity': activity, 'evidence': evidence,
-             'feedback': feedback, 'score': score}
+             'feedback': feedback, 'score': score, 'skill': skill,
+             'difficulty': difficulty, 'error_tag': error_tag}
     record['days'][str(day)]['activities'].append(entry)
     write_json(path / 'cycle.json', record)
     event(base, 'checkpoint', {'song': record['id'], 'day': day, 'activity': activity})
@@ -310,6 +341,11 @@ def add_note(base: Path, kind: str, title: str, meaning: str,
                     'updated_at': now()}
     write_json(notes_index, idx)
     event(base, 'note_updated', {'note': note_id, 'song': active})
+    if checked_config(base)['schema_version'] == 2:
+        from . import mastery
+        item = mastery.legacy_note(base, idx[note_id], meaning)
+        if item:
+            return dict(idx[note_id], knowledge_id=item['id'])
     return idx[note_id]
 
 
@@ -325,6 +361,15 @@ def finish_song(base: Path, comprehension: int, expressions: int,
         raise ValueError('pronunciation: verified | needs_work | not_assessed')
     if not speaking.strip() or not summary.strip():
         raise ValueError('Speaking e avaliação textual são obrigatórios; use not_assessed se necessário')
+    cfg = checked_config(base)
+    reported_expressions = expressions
+    if cfg['schema_version'] == 2:
+        from . import mastery
+        expressions = sum(x['type'] in ('expression','phrasal_verb','idiom','collocation') and
+                          x['status'] in ('acquired','consolidated') and any(
+                          a.get('song_id') == record['id'] and a['mode'] == 'transfer' and
+                          a['outcome'] == 'correct' and a['assistance'] == 'independent'
+                          for a in x['attempts']) for x in mastery.items(base).values())
     final = {'at': now(), 'comprehension_percent': comprehension,
              'active_expressions': expressions, 'pronunciation_status': pronunciation,
              'speaking_evidence': speaking, 'summary': summary,
@@ -332,6 +377,9 @@ def finish_song(base: Path, comprehension: int, expressions: int,
                           'expressions': expressions>=5,
                           'pronunciation': pronunciation=='verified',
                           'speaking': speaking != 'not_assessed'}}
+    if cfg['schema_version'] == 2:
+        final['reported_expressions'] = reported_expressions
+        final['expression_count_method'] = 'individual_mastery_evidence'
     record['status'] = 'completed'
     record['finished_at'] = now()
     record['final'] = final
@@ -351,6 +399,9 @@ def finish_song(base: Path, comprehension: int, expressions: int,
                                     'step': 0, 'due_date': (finished + timedelta(days=intervals[0])).isoformat(),
                                     'status': 'due_later', 'attempts': []}
     write_json(reviews_file, reviews)
+    if cfg['schema_version'] == 2:
+        from . import review_policy
+        review_policy.schedule_song(base, record['id'])
     s = state(base)
     s['songs_completed'] = s.get('songs_completed', 0) + 1
     s['active_song'] = None
@@ -365,10 +416,13 @@ def due_reviews(base: Path, day: str | None = None) -> list[dict]:
             if r['status'] != 'finished' and r['due_date'] <= date_str]
 
 
-def grade_review(base: Path, note_id: str, correct: bool, evidence: str) -> dict:
+def grade_review(base: Path, note_id: str, correct: bool, evidence: str, **details) -> dict:
     if not evidence.strip():
         raise ValueError('Informe a resposta do aluno ou evidência observada')
     cfg = checked_config(base)
+    if cfg['schema_version'] == 2:
+        from . import review_policy
+        return review_policy.grade(base, note_id, correct, evidence, **details)
     reviews_file = base / 'data/reviews.json'
     reviews = read_json(reviews_file, {})
     if note_id not in reviews:
@@ -404,11 +458,15 @@ def metrics(base: Path) -> dict:
     s = state(base)
     reviews = read_json(base / 'data/reviews.json', {})
     cfg = checked_config(base)
-    return {'onboarded': s.get('onboarded', False),
+    result = {'onboarded': s.get('onboarded', False),
             'diagnostic_done': s.get('diagnostic_done', False),
             'roadmap_ready': s.get('roadmap_ready', False),
             'active_song': s.get('active_song'),
             'songs_completed': s.get('songs_completed', 0),
             'reviews_due': len(due_reviews(base)),
             'notes_total': len(read_json(base / 'data/notes/index.json', {})),
-            'mode': cfg['schedule']['mode']}
+            'mode': cfg['schedule']['mode'], 'schema_version': cfg['schema_version']}
+    if cfg['schema_version'] == 2:
+        from . import analytics
+        result['learning'] = analytics.summary(base)
+    return result

@@ -28,3 +28,6 @@ description: Conduzir cada música em um chat exclusivo com três dias e sessõe
 - O agente registra notas via `$automatic-notes` automaticamente.
 
 **Critério de execução:** não conclua um dia sem checkpoints de evidência. Não marque estudo de áudio sem que aluno tenha realmente ouvido.
+
+
+No v2 use study begin ao iniciar/retomar; confirme duração efetiva de cada sessão uma vez; study finish --effective-minutes ou --unknown. Study record só para atividade com duração confirmada. Consulte cefr due e knowledge gaps no orçamento.

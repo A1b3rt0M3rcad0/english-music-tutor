@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 student:
   name: null
   native_language: pt-BR
@@ -31,3 +31,15 @@ knowledge:
   graphify_enabled: true
   graphify_source: data/notes
   graphify_output: graphify-out
+
+mastery:
+  independent_contexts: 2
+  consolidation_reviews: 3
+  consolidation_days: 14
+  regression_failures: 1
+cefr_progression:
+  songs_interval: 5
+  minutes_interval: 1800
+review_policy:
+  maintenance_enabled: true
+  maintenance_days: [60, 90, 120, 180]

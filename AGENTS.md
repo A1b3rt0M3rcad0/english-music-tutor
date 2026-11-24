@@ -36,6 +36,8 @@ Não use a palavra “concluído” sem confirmação no estado persistido. Sess
 | Erros persistentes ou acertos consistentes | `adaptive-learning` | Mudar dificuldade/atividade |
 | Após qualquer descoberta ou resposta útil | `automatic-notes` | Registrar conhecimento automaticamente |
 | Início da sessão e após fechamento | `spaced-repetition` | Reativação escalonada |
+| Domínio individual | `knowledge-mastery` | Evidências por unidade |
+| Reavaliação de proficiência | `cefr-progression` | Histórico por dimensão |
 | Consultas a conhecimento anterior e indexação | `graphify-navigation` | Preferir grafo, verificar notas de origem |
 
 Se Graphify oficial foi instalado, `$graphify` pode estar disponível como skill adicional de terceiros. Leia o `SKILL.md` instalado e use junto com `graphify-navigation`; não suponha sua presença.
@@ -85,7 +87,7 @@ Ponto de entrada: `python -m tutor.cli`, executado na raiz deste repositório. A
 
 As operações criam arquivos em `workspaces/data/` e devem ser invocadas **após cada resposta significativa**, não apenas no fim do chat. Nunca forje respostas nem evidência por conveniência para satisfazer validações da CLI. Se uma prova não foi aplicada, registre `not_assessed` e explique a limitação.
 
-`$song-difficulty-analyzer` registra uma análise curta em `workspaces/data/songs/<id>/song-difficulty.md` depois de `song start`; não existe comando `song analyze`. `$knowledge-transfer` registra tentativas pelo checkpoint existente e lacunas por `note add`; não crie comandos novos para essas skills. As duas usam os hooks atuais e não exigem hooks novos nem integrações externas.
+`$song-difficulty-analyzer` registra uma análise curta em `workspaces/data/songs/<id>/song-difficulty.md` depois de `song start`; não existe comando `song analyze`. `$knowledge-transfer` registra tentativas pelo checkpoint existente e lacunas por `note add`; no v2 use também knowledge record para evidências individuais. As duas usam os hooks atuais e não exigem hooks novos nem integrações externas.
 
 ## Graphify e qualidade do conhecimento
 
@@ -104,3 +106,13 @@ O conteúdo canônico fica em `workspaces/data/notes/` (Markdown), `workspaces/d
 ## Em caso de falha
 
 Se um comando falhar, explique o motivo brevemente, preserve respostas já dadas, ajuste a invocação e retente. Se sessão foi interrompida, retome a última evidência salva. Se o usuário pedir mudança de tempo/objetivo, atualize `workspaces/config.yaml`, valide e regenere roadmap **sem apagar diagnóstico e histórico**. Se receber pergunta fora do tema, responda adequadamente sem mudar implicitamente a música ativa.
+
+
+## Schema v2 — regras operacionais (prevalecem sobre exemplos legados)
+- Para schema_version=1, informe backup local e execute python -m tutor.cli migrate antes das operações v2. Preserve diagnóstico e histórico.
+- Início de sessão: status, review due, cefr due e study history; use study begin e retome ID ativo. Ao final confirme minutos uma vez; study finish --id ... --effective-minutes ... ou --unknown. Registre atividades só com duração confirmada; não use tempo de chat aberto.
+- Use $knowledge-mastery para introduzir unidades e registrar cada tentativa individual. Reutilize knowledge_id de note add. Song finish deriva contagem de evidências, não declaração do agente.
+- Use $cefr-progression quando devido ou justificado; não sobrescreva placement ou atribua nível global artificial. Não solicite gravação, microfone, transcrição ou upload de áudio. Sem evidência adequada, listening/speaking not_assessed.
+- Review grade v2 exige --attempt-id, --assistance, --context, --question, --answer e --evidence; não duplique por knowledge record.
+- Song checkpoint recebe --skill, --difficulty e --error-tag quando fundamentados. Song difficulty --level ... --evidence ... registra faixa textual provisória.
+- Consulte analytics summary, trends e knowledge gaps para adaptar atividades e roadmap create --reason ... . Preserve versões e evidências. Não invente dados nem edite estados manualmente. Leia docs/LEARNING-INTELLIGENCE.md.

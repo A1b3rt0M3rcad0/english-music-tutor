@@ -50,7 +50,7 @@ def create_workspace(project_root: Path = ROOT) -> Path:
     (dest / 'data').mkdir(exist_ok=True)
     for folder in ('notes/expressions', 'notes/grammar', 'notes/pronunciation',
                    'notes/difficulties', 'assessments/placement', 'assessments/checkpoints',
-                   'songs', 'sessions'):
+                   'songs', 'sessions', 'knowledge', 'assessments/cefr', 'study_sessions'):
         path = dest / 'data' / folder
         path.mkdir(parents=True, exist_ok=True)
         (path / '.gitkeep').touch()

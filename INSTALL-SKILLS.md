@@ -1,6 +1,6 @@
 # Skills adicionais
 
-O projeto inclui duas skills pedagógicas novas em `.agents/skills/`. Elas são descobertas pelo Codex ao abrir uma sessão na raiz do repositório. Não exigem dependências, serviços ou hooks adicionais.
+O projeto inclui quatro skills pedagógicas adicionais (15 no total) em `.agents/skills/`. Elas são descobertas pelo Codex ao abrir uma sessão na raiz do repositório. Não exigem dependências, serviços ou hooks adicionais.
 
 ## Analisar a dificuldade da música
 
@@ -21,3 +21,8 @@ Abra uma nova sessão do Codex na raiz do repositório para carregar as skills. 
 ```bash
 python -m unittest discover -s tests -p 'test_skill_extension.py' -v
 ```
+
+
+## Domínio e evolução CEFR
+
+$knowledge-mastery e $cefr-progression usam a CLI v2 para evidências individuais e avaliações longitudinais. Abra nova sessão para carregar as skills. Consulte docs/LEARNING-INTELLIGENCE.md.
