@@ -44,7 +44,7 @@ Consulte [references/test-design.md](references/test-design.md) para formatos e 
 
 ## Persistência: compatível com o motor existente
 
-A integração é por instruções e pelos comandos que **já existem**; não requer modificações em `tutor/`.
+No v2 checkpoint registra atividade; knowledge record registra evidência individual.
 
 1. Somente após `song begin-day --day N`, use uma linha equivalente a:
 
@@ -66,3 +66,6 @@ A integração é por instruções e pelos comandos que **já existem**; não re
 - Preserve o orçamento da sessão e a regra **uma atividade por turno**.
 - Não use conteúdo de outra música como ciclo novo dentro do chat atual. Uma expressão antiga pode aparecer em revisão.
 - Não reproduza a letra completa nem grave trechos extensos protegidos por direitos autorais.
+
+
+No v2 use $knowledge-mastery e knowledge record --mode transfer por unidade, com contexto, assistência e resposta; alternativa válida sem alvo = not_observed. Revisão passa exclusivamente por review grade.

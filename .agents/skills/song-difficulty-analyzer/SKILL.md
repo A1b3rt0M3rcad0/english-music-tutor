@@ -63,3 +63,6 @@ Na resposta, incluir no máximo: nível de adequação, dois fatores relevantes,
 - Não estimar pronúncia/velocidade sem áudio analisável; não depender de áudio para executar a skill.
 - Se o texto não for suficiente, informe isso claramente e não fabrique uma faixa CEFR.
 - Música conhecida ou muito repetida pode parecer fácil sem ser linguisticamente transferível: testar em contexto diferente via `$knowledge-transfer`.
+
+
+No v2 consulte cefr current e knowledge gaps. Após song start, song difficulty --level ... --evidence ... só se houver faixa textual fundamentada; caso contrário preserve ausência de nível.

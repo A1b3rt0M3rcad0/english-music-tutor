@@ -17,3 +17,6 @@ description: Gerenciar anotações de todo o estudo, extraindo conhecimento veri
 - Se Graphify existir, execute `graph sync` com autorização/configuração adequada. Reindexação não deve apagar notas nem afirmar aprendizado não comprovado.
 
 **Qualidade:** não armazene correções inventadas, nem atribua ao aluno uma frase que foi escrita pelo agente. Se um erro foi corrigido, preserve histórico e atualize estado com evidência.
+
+
+No v2 note add retorna knowledge_id para expression/grammar. Vincule ao registrar tentativas. Classifique phrasal verb/idiom/collocation via knowledge introduce --note-id antes da primeira tentativa. Nota apenas introduz conhecimento.

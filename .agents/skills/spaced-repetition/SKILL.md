@@ -16,3 +16,6 @@ description: Gerir revisões D+1, D+3, D+7, D+14, D+30 a partir do fechamento de
 7. Se não houve novas expressões registradas, não fabrique cartões/revisões.
 
 **Atenção:** o motor cria a fila apenas depois do `song finish` da música. O início dos dias 2 e 3 inclui recuperação das expressões da própria música no bloco de revisão, conduzida pelo agente, mesmo quando a fila futura ainda não foi criada.
+
+
+No v2 use review grade --note-id ... --attempt-id ... --result correct|incorrect --assistance independent|assisted --context ... --question ... --answer ... --evidence ... . Só acerto independente avança; erro/ajuda reduz intervalo. Manutenção configurável 60/90/120/180 dias entre sucessos; sem consolidação após janelas iniciais, reforço em sete dias. Unidade fora de música é agendada imediatamente.

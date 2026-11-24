@@ -22,3 +22,6 @@ Critérios indicativos: ≥80% compreensão; ≥5 expressões ativas; pronúncia
 Não declare nível CEFR por uma única letra. Checkpoints independentes devem usar conteúdo desconhecido.
 
 Se falhar, registre lacunas e programa reforço sem bloquear indefinidamente a próxima música.
+
+
+No v2 use --skill/--difficulty e --error-tag quando fundamentados; song finish deriva expressões de evidência individual. Reavaliação via $cefr-progression.
