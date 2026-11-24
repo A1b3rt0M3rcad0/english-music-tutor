@@ -34,6 +34,19 @@ def migrate(base: Path):
     for note in read_json(base / 'data/notes/index.json', {}).values():
         mastery.legacy_note(base, note)
     cefr.preserve_placement(base)
+    from .store import write_json, today
+    from datetime import date, timedelta
+    queue_path = base / 'data/reviews.json'
+    queue = read_json(queue_path, {})
+    if queue:
+        for key, row in queue.items():
+            if key in mastery.items(base):
+                row['knowledge_id'] = key
+                row.setdefault('maintenance_step', 0)
+                if row['status'] == 'finished':
+                    row.update(status='needs_reinforcement', step=0, anchor_date=today(),
+                               due_date=(date.today()+timedelta(days=1)).isoformat())
+        write_json(queue_path, queue)
     for key, defaults in DEFAULTS.items():
         cfg[key] = dict(defaults, **cfg.get(key, {}))
     cfg['schema_version'] = 2

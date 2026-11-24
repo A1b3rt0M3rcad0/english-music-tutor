@@ -40,20 +40,24 @@ def introduce(base: Path, kind: str, content: str, meaning: str, *,
     require_workspace(base)
     if kind not in TYPES or not content.strip() or not meaning.strip():
         raise ValueError('Tipo válido, conteúdo e significado são obrigatórios')
-    if song_id and not (base / 'data/songs' / song_id / 'cycle.json').is_file():
-        raise ValueError('Música não encontrada')
-    if song_id and (Path(song_id).name != song_id or song_id in ('.', '..')):
+    if song_id and (Path(song_id).name != song_id or song_id in ('.', '..') or
+                    not (base / 'data/songs' / song_id / 'cycle.json').is_file()):
         raise ValueError('Identificador de música inválido')
     all_items = items(base)
     identity = '|'.join([kind, ' '.join(content.casefold().split()),
                          ' '.join((sense or meaning).casefold().split())])
     identifier = f'{kind}/{slug(content)}-{sha256(identity.encode()).hexdigest()[:12]}'
     if note_id:
+        if note_id not in read_json(base / 'data/notes/index.json', {}):
+            raise ValueError('Nota de origem não encontrada')
         matches = [x for x in all_items.values() if x.get('note_id') == note_id]
         if matches:
             candidate = matches[0]
-            if candidate['content'].casefold().strip() == content.casefold().strip():
-                identifier = candidate['id']
+            if candidate['content'].casefold().strip() != content.casefold().strip():
+                raise ValueError('Nota já vinculada a outro conhecimento')
+            if sense and candidate.get('sense') and candidate['sense'].casefold() != sense.casefold():
+                raise ValueError('Nota já vinculada a outro sentido')
+            identifier = candidate['id']
         elif note_id in all_items:
             identifier = note_id
     item = all_items.get(identifier)
@@ -64,6 +68,10 @@ def introduce(base: Path, kind: str, content: str, meaning: str, *,
                 'source_songs': [], 'attempts': [], 'note_id': note_id}
     elif note_id and not item.get('note_id'):
         item['note_id'] = note_id
+    if note_id and item['type'] != kind and not item['attempts'] and item['status'] == 'introduced':
+        item['type'] = kind
+        item['meaning'] = meaning.strip()
+        item['sense'] = sense.strip()
     if song_id and song_id not in item['source_songs']:
         item['source_songs'].append(song_id)
     all_items[identifier] = item

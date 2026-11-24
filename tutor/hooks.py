@@ -36,6 +36,15 @@ def hook_start(base: Path, payload: dict) -> dict:
         due = [v['note_id'] for v in review.values()
                if v.get('status') != 'finished' and v.get('due_date', '9999-99-99') <= now()[:10]]
         msg.append('Revisões vencidas: ' + (', '.join(due[:15]) if due else 'nenhuma'))
+        from .store import read_yaml
+        cfg = read_yaml(base/'config.yaml')
+        if cfg.get('schema_version') == 2:
+            from . import cefr, study_time
+            if cefr.due(base)['due']: msg.append('Reavaliação CEFR pendente: consulte cefr due.')
+            active_study = next((x for x in study_time.sessions(base).values() if x['status']=='active'),None)
+            if active_study: msg.append('Retome sessão de estudo ativa: '+active_study['id'])
+        elif cfg.get('schema_version') == 1:
+            msg.append('Workspace v1: execute migrate com backup explícito antes de usar as métricas v2.')
     return {'hookSpecificOutput': {'hookEventName': 'SessionStart',
                                    'additionalContext': '\n'.join(msg)}}
 

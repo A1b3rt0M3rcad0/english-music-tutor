@@ -33,6 +33,14 @@ def summary(base, start=None, end=None):
                      if x.get('final', {}).get('comprehension_percent') is not None]
     # Existing comprehension values are agent estimates, not a pooled item accuracy.
     review_queue = read_json(base / 'data/reviews.json', {})
+    grouped = {}
+    for cycle in cycles(base):
+        for day in cycle.get('days', {}).values():
+            for a in day['activities']:
+                if a.get('skill') and a.get('difficulty') and a.get('score') is not None and within(a['at']):
+                    grouped.setdefault((a['skill'], a['difficulty']), []).append(a['score'])
+    breakdown = [{'skill': skill, 'difficulty': difficulty, 'mean_score': round(sum(scores)/len(scores),4),
+                  'sample_size': len(scores)} for (skill,difficulty),scores in sorted(grouped.items())]
     return {'period': {'start': start, 'end': end}, 'study': time,
             'cefr_current': cefr.current(base), 'cefr_due': cefr.due(base),
             'songs_completed': len(completed), 'knowledge_current': counts,
@@ -45,6 +53,7 @@ def summary(base, start=None, end=None):
                                    'method': 'unweighted_song_estimates'},
             'reviews_due_current': sum(r['status'] != 'finished' and r['due_date'] <= today()
                                        for r in review_queue.values()),
+            'performance_by_skill_difficulty': breakdown,
             'difficulties': difficulties(base, start, end)}
 
 
