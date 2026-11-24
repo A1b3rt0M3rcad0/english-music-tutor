@@ -10,7 +10,7 @@ O código, a CLI, as skills, as instruções do Codex e os hooks ficam na raiz d
 
 A CLI é executada na raiz do repositório. `tutor.store.root()` usa `TUTOR_WORKSPACE` quando definido, aceita uma configuração no diretório atual para compatibilidade e, no uso normal, encontra `workspaces/config.yaml` automaticamente.
 
-- Configuração: `workspaces/config.yaml`, schema v1 com PyYAML.
+- Configuração: `workspaces/config.yaml`, schema v2 com PyYAML; v1 compatível até migração.
 - Controle de jornada: `workspaces/data/state.json` com onboarding, diagnóstico, roadmap, música ativa e contagem.
 - Evidências de nivelamento: `workspaces/data/assessments/placement/items.json` e `report.yaml`.
 - Roadmap: `workspaces/data/roadmap.yaml`, estimativas e fases.
@@ -31,9 +31,14 @@ O Graphify é opcional e indexa as notas locais. As notas Markdown e o índice J
 
 ## Evolução
 
-1. Mantenha o schema 1 ou forneça migrações explícitas para mudanças de formato.
+1. Mantenha o schema 2 ou forneça migrações explícitas para mudanças de formato.
 2. Prefira operações idempotentes e checkpoints frequentes.
 3. Atualize skills e testes juntos quando mudar o comportamento do tutor.
 4. Confirme afirmações do grafo nos arquivos Markdown ou JSON de origem.
 5. Não dependa de transcrições internas do Codex nos hooks.
 6. O motor é local e single-user, sem servidor ou controle de acesso multiusuário.
+
+
+## Learning Intelligence
+
+mastery.py: data/knowledge/items.json; cefr.py: data/assessments/cefr/assessments.json; study_time.py: data/study_sessions/sessions.json; analytics.py: métricas derivadas; review_policy.py: revisões vinculadas a evidências; migrations.py: backup e migração explícita. Notas Markdown são canônicas para anotações; domínio estruturado vem do catálogo. Single-user, um processo de escrita por vez; arquivos individuais são atômicos, não transação multi-arquivo.

@@ -53,3 +53,8 @@ O comando `-u` direciona os próximos `git push` para o repositório particular.
 - [Skills de análise e transferência](INSTALL-SKILLS.md)
 
 Graphify é opcional. Sem ele, notas e revisões continuam funcionando localmente. Recursos de áudio dependem do cliente e das ferramentas disponíveis. Não salve letras integrais protegidas por direitos autorais.
+
+
+## Learning Intelligence (v2)
+
+O tutor acompanha domínio individual, reavaliações por competência, tempo confirmado, analytics e revisões de manutenção. Para workspace v1 execute `python -m tutor.cli migrate` com backup local. Consulte [guia](docs/LEARNING-INTELLIGENCE.md).

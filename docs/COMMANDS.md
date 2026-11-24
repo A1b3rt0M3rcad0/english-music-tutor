@@ -83,3 +83,8 @@ A sincronização executa Graphify sobre `workspaces/data/notes/` com o backend 
 - `workspaces/data/events.jsonl`: registro cronológico técnico.
 - `workspaces/data/threads.json`: vínculo entre músicas e chats.
 - `workspaces/.tutor/session.json`: identificador efêmero do chat corrente (ignorado pelo Git).
+
+
+## Schema v2
+
+Os comandos legados de review grade são válidos somente no v1; veja contratos, exemplos e novos argumentos em [Learning Intelligence](LEARNING-INTELLIGENCE.md).

@@ -64,3 +64,8 @@ python -m compileall -q tutor bootstrap.py
 - Não há áudio disponível: listening e pronúncia acústica ficam sem avaliação até haver evidência de áudio.
 
 O progresso em `workspaces/` é local e ignorado pelo Git público. O README explica como enviá-lo a um repositório particular, se você quiser.
+
+
+## Atualizar workspace v1
+
+Feche outros processos de escrita. Execute `python -m tutor.cli migrate` na raiz, com venv ativa. Backup em `workspaces/.tutor/migration-v1-backup/`, ignorado pelo Git. Depois execute status e abra nova sessão Codex.
